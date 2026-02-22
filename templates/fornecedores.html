@@ -1,43 +1,112 @@
 {% extends "template.html" %}
 
 {% block page_header %}
-    <div class="page-header text-center mt-4">
-        <h1>Fornecedores Cadastrados</h1>
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div>
+        <h1 class="text-3xl font-bold text-text-main-light dark:text-text-main-dark tracking-tight">Fornecedores</h1>
+        <p class="mt-1 text-sm text-text-muted-light dark:text-text-muted-dark">Gerencie os fornecedores e parceiros do seu negócio.</p>
     </div>
-    <div class="d-flex justify-content-start mb-3">
-        <a class="btn btn-primary" href="{{ url_for('novo_fornecedor') }}">Adicionar Novo Fornecedor</a>
-    </div>
+    <a href="{{ url_for('novo_fornecedor') }}" class="group inline-flex items-center px-5 py-2.5 bg-primary hover:bg-primary-hover text-white font-medium rounded-lg shadow-soft transition-all duration-200 transform hover:-translate-y-0.5">
+        <span class="material-icons-outlined mr-2 group-hover:rotate-90 transition-transform">add</span>
+        Adicionar Fornecedor
+    </a>
+</div>
 {% endblock %}
 
 {% block conteudo %}
-    <table class="table table-striped table-bordered table-hover">
-        <thead class="thead-dark">
-            <tr>
-                <th>Nome do Fornecedor</th>
-                <th>Telefone</th>
-                <th>E-mail</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for fornecedor in fornecedores %}
-            <tr>
-                <td>{{ fornecedor.nome_fornecedor }}</td>
-                <td>{{ fornecedor.telefone }}</td>
-                <td>{{ fornecedor.email }}</td>
-                <td>
-                    <a class="btn btn-primary" href="{{ url_for('editar_fornecedor', id=fornecedor.id) }}">Editar</a>
-                    <form action="{{ url_for('deletar_fornecedor', id=fornecedor.id) }}" method="post" style="display:inline;" onsubmit="return confirm('Tem certeza que deseja excluir este fornecedor?');">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        <button type="submit" class="btn btn-danger">Excluir</button>
-                    </form>
-                </td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="4" class="text-center">Nenhum fornecedor cadastrado.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-xl shadow-soft border border-border-light dark:border-border-dark flex items-center">
+        <div class="p-3 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 mr-4">
+            <span class="material-icons-outlined">local_shipping</span>
+        </div>
+        <div>
+            <p class="text-sm font-medium text-text-muted-light dark:text-text-muted-dark">Total de Fornecedores</p>
+            <p class="text-2xl font-bold text-text-main-light dark:text-text-main-dark">{{ fornecedores|length }}</p>
+        </div>
+    </div>
+</div>
+
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-soft border border-border-light dark:border-border-dark overflow-hidden">
+    
+    <div class="px-6 py-4 border-b border-border-light dark:border-border-dark flex justify-between items-center bg-gray-50 dark:bg-gray-800/50">
+        <div class="relative w-full max-w-md">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="material-icons-outlined text-text-muted-light dark:text-text-muted-dark">search</span>
+            </span>
+            <input class="block w-full pl-10 pr-3 py-2 border border-border-light dark:border-border-dark rounded-lg leading-5 bg-surface-light dark:bg-surface-dark text-text-main-light dark:text-text-main-dark placeholder-text-muted-light dark:placeholder-text-muted-dark focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm" placeholder="Buscar por nome ou contato..." type="text"/>
+        </div>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-border-light dark:divide-border-dark">
+            <thead class="bg-gray-50 dark:bg-gray-800">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider" scope="col">Nome do Fornecedor</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider" scope="col">Telefone</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider" scope="col">E-mail</th>
+                    <th class="px-6 py-3 text-right text-xs font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider" scope="col">Ações</th>
+                </tr>
+            </thead>
+            <tbody class="bg-surface-light dark:bg-surface-dark divide-y divide-border-light dark:divide-border-dark">
+                {% for fornecedor in fornecedores %}
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="h-10 w-10 flex-shrink-0 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
+                                <span class="material-icons-outlined">business</span>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-text-main-light dark:text-text-main-dark">{{ fornecedor.nome_fornecedor }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-text-muted-light dark:text-text-muted-dark">
+                        <span class="flex items-center">
+                            <span class="material-icons-outlined text-sm mr-2 opacity-70">phone</span>
+                            {{ fornecedor.telefone }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-text-muted-light dark:text-text-muted-dark">
+                        <span class="flex items-center">
+                            <span class="material-icons-outlined text-sm mr-2 opacity-70">email</span>
+                            {{ fornecedor.email }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div class="flex justify-end items-center space-x-2">
+                            <a href="{{ url_for('editar_fornecedor', id=fornecedor.id) }}" class="text-primary hover:text-primary-hover bg-green-50 dark:bg-green-900/20 p-2 rounded-lg transition-colors" title="Editar">
+                                <span class="material-icons-outlined text-lg">edit</span>
+                            </a>
+                            <form action="{{ url_for('deletar_fornecedor', id=fornecedor.id) }}" method="post" style="display:inline;" onsubmit="return confirm('Tem certeza que deseja excluir este fornecedor? Produtos atrelados a ele podem impedir a exclusão.');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="text-danger hover:text-danger-hover bg-red-50 dark:bg-red-900/20 p-2 rounded-lg transition-colors" title="Excluir">
+                                    <span class="material-icons-outlined text-lg">delete</span>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="px-6 py-10 text-center text-text-muted-light dark:text-text-muted-dark">
+                        Nenhum fornecedor cadastrado até o momento.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="bg-surface-light dark:bg-surface-dark px-4 py-3 border-t border-border-light dark:border-border-dark sm:px-6">
+        <div class="flex items-center justify-between">
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-sm text-text-muted-light dark:text-text-muted-dark">
+                        Mostrando <span class="font-medium text-text-main-light dark:text-text-main-dark">{{ fornecedores|length }}</span> fornecedores
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

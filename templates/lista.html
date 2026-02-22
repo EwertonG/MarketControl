@@ -1,47 +1,188 @@
 {% extends "template.html" %}
 
 {% block page_header %}
-    <div class="page-header text-center">
-        <h1>Lista de Produtos</h1>
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div>
+        <p class="text-primary font-medium text-lg mb-1">Olá, {{ session['usuario_logado'] }}! 👋</p>
+        <h1 class="text-3xl font-bold text-text-main-light dark:text-text-main-dark tracking-tight">Lista de Produtos</h1>
+        <p class="mt-1 text-sm text-text-muted-light dark:text-text-muted-dark">Gerencie o estoque do supermercado de forma eficiente.</p>
     </div>
-    <div class="d-flex justify-content-start mb-3">
-        <a class="btn btn-primary" href="{{ url_for('novo') }}">Adicionar Novo Produto</a>
-    </div>
+    <a href="{{ url_for('novo') }}" class="group inline-flex items-center px-5 py-2.5 bg-primary hover:bg-primary-hover text-white font-medium rounded-lg shadow-soft transition-all duration-200 transform hover:-translate-y-0.5">
+        <span class="material-icons-outlined mr-2 group-hover:rotate-90 transition-transform">add</span>
+        Adicionar Novo Produto
+    </a>
+</div>
 {% endblock %}
 
 {% block conteudo %}
-    <table class="table table-striped table-responsive table-bordered">
-        <thead class="thead-default">
-            <tr>
-                <th>Nome do Produto</th>
-                <th>Código</th>
-                <th>Preço (R$)</th>
-                <th>Quantidade</th>
-                <th>Data de Validade</th>
-                <th>Fornecedor</th>
-                <th>Categoria</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for produto in produtos %}
-            <tr>
-                <td>{{ produto.nome_produto }}</td>
-                <td>{{ produto.codigo }}</td>
-                <td>{{ produto.preco }}</td>
-                <td>{{ produto.quantidade }}</td>
-                <td>{{ produto.data_validade }}</td>
-                <td>{{ produto.nome_fornecedor }}</td>
-                <td>{{ produto.categoria }}</td>
-                <td>
-                    <a class="btn btn-primary" href="{{ url_for('editar', id=produto.id) }}">Editar</a>
-                    <form action="{{ url_for('deletar', id=produto.id) }}" method="post" style="display:inline;">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        <button type="submit" class="btn btn-danger">Excluir</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-xl shadow-soft border border-border-light dark:border-border-dark flex items-center">
+        <div class="p-3 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 mr-4">
+            <span class="material-icons-outlined">inventory_2</span>
+        </div>
+        <div>
+            <p class="text-sm font-medium text-text-muted-light dark:text-text-muted-dark">Total de Itens</p>
+            <p class="text-2xl font-bold text-text-main-light dark:text-text-main-dark">{{ produtos|length }}</p>
+        </div>
+    </div>
+    <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-xl shadow-soft border border-border-light dark:border-border-dark flex items-center">
+        <div class="p-3 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 mr-4">
+            <span class="material-icons-outlined">warning</span>
+        </div>
+        <div>
+            <p class="text-sm font-medium text-text-muted-light dark:text-text-muted-dark">Estoque Baixo</p>
+            <p class="text-2xl font-bold text-text-main-light dark:text-text-main-dark">{{ estoque_baixo }}</p>
+        </div>
+    </div>
+    <div class="bg-surface-light dark:bg-surface-dark p-6 rounded-xl shadow-soft border border-border-light dark:border-border-dark flex items-center">
+        <div class="p-3 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 mr-4">
+            <span class="material-icons-outlined">event_busy</span>
+        </div>
+        <div>
+            <p class="text-sm font-medium text-text-muted-light dark:text-text-muted-dark">Vencendo em Breve</p>
+            <p class="text-2xl font-bold text-text-main-light dark:text-text-main-dark">{{ vencendo_breve }}</p>
+        </div>
+    </div>
+</div>
+
+<form action="{{ url_for('index') }}" method="GET" class="border-b border-border-light dark:border-border-dark bg-gray-50 dark:bg-gray-800/50">
+        
+        <div class="px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div class="relative w-full max-w-md">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span class="material-icons-outlined text-text-muted-light dark:text-text-muted-dark">search</span>
+                </span>
+                
+                <input name="q" value="{{ termo_busca }}" class="block w-full pl-10 pr-10 py-2 border border-border-light dark:border-border-dark rounded-lg leading-5 bg-surface-light dark:bg-surface-dark text-text-main-light dark:text-text-main-dark placeholder-text-muted-light dark:placeholder-text-muted-dark focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm" placeholder="Buscar por nome ou código..." type="text"/>
+            </div>
+            
+            <div class="flex space-x-2 w-full sm:w-auto">
+                <button type="button" onclick="document.getElementById('painelFiltros').classList.toggle('hidden')" class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-border-light dark:border-border-dark text-sm leading-4 font-medium rounded-md text-text-muted-light dark:text-text-muted-dark bg-surface-light dark:bg-surface-dark hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none transition-colors">
+                    <span class="material-icons-outlined text-sm mr-2">filter_list</span>
+                    Filtros
+                    {% if categoria_filtro or fornecedor_filtro %}
+                    <span class="ml-2 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">!</span>
+                    {% endif %}
+                </button>
+            </div>
+        </div>
+        
+        <div id="painelFiltros" class="{% if not categoria_filtro and not fornecedor_filtro %}hidden{% endif %} px-6 pb-6 pt-2 border-t border-border-light dark:border-border-dark">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <div>
+                    <label class="block text-sm font-medium text-text-main-light dark:text-text-main-dark mb-1">Categoria</label>
+                    <select name="categoria" class="block w-full rounded-md border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark text-text-main-light dark:text-text-main-dark focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 sm:text-sm py-2 px-3 border shadow-sm">
+                        <option value="">Todas as Categorias</option>
+                        {% for cat in categorias %}
+                        <option value="{{ cat }}" {% if cat == categoria_filtro %}selected{% endif %}>{{ cat }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-text-main-light dark:text-text-main-dark mb-1">Fornecedor</label>
+                    <select name="fornecedor" class="block w-full rounded-md border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark text-text-main-light dark:text-text-main-dark focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 sm:text-sm py-2 px-3 border shadow-sm">
+                        <option value="">Todos os Fornecedores</option>
+                        {% for forn in fornecedores_lista %}
+                        <option value="{{ forn.id }}" {% if forn.id|string == fornecedor_filtro %}selected{% endif %}>{{ forn.nome_fornecedor }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="flex items-end space-x-3">
+                    <button type="submit" class="w-full bg-primary hover:bg-primary-hover text-white font-medium py-2 px-4 rounded-md shadow-sm transition-colors">
+                        Aplicar Filtros
+                    </button>
+                    {% if termo_busca or categoria_filtro or fornecedor_filtro %}
+                    <a href="{{ url_for('index') }}" class="w-full text-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-text-main-light dark:text-text-main-dark font-medium py-2 px-4 rounded-md shadow-sm transition-colors">
+                        Limpar Tudo
+                    </a>
+                    {% endif %}
+                </div>
+                
+            </div>
+        </div>
+    </form>
+    
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-border-light dark:divide-border-dark">
+            <thead class="bg-gray-50 dark:bg-gray-800">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider" scope="col">Nome do Produto</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider" scope="col">Código</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider" scope="col">Preço (R$)</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider" scope="col">Quantidade</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider" scope="col">Data de Validade</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider" scope="col">Fornecedor</th>
+                    <th class="px-6 py-3 text-right text-xs font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider" scope="col">Ações</th>
+                </tr>
+            </thead>
+            <tbody class="bg-surface-light dark:bg-surface-dark divide-y divide-border-light dark:divide-border-dark">
+                {% for produto in produtos %}
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="h-10 w-10 flex-shrink-0 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center text-primary">
+                                <span class="material-icons-outlined">shopping_bag</span>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-text-main-light dark:text-text-main-dark">{{ produto.nome_produto }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-text-muted-light dark:text-text-muted-dark">
+                        <span class="font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-xs">{{ produto.codigo }}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-text-main-light dark:text-text-main-dark">
+                        R$ {{ produto.preco }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300">
+                            {{ produto.quantidade }} un
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-text-muted-light dark:text-text-muted-dark">
+                        {{ produto.data_validade }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-text-main-light dark:text-text-main-dark">
+                        {{ produto.nome_fornecedor }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div class="flex justify-end items-center space-x-2">
+                            <a href="{{ url_for('editar', id=produto.id) }}" class="text-primary hover:text-primary-hover bg-green-50 dark:bg-green-900/20 p-2 rounded-lg transition-colors" title="Editar">
+                                <span class="material-icons-outlined text-lg">edit</span>
+                            </a>
+                            <form action="{{ url_for('deletar', id=produto.id) }}" method="post" style="display:inline;" onsubmit="return confirm('Deseja realmente excluir este produto?');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="text-danger hover:text-danger-hover bg-red-50 dark:bg-red-900/20 p-2 rounded-lg transition-colors" title="Excluir">
+                                    <span class="material-icons-outlined text-lg">delete</span>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="px-6 py-10 text-center text-text-muted-light dark:text-text-muted-dark">
+                        Nenhum produto encontrado.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="bg-surface-light dark:bg-surface-dark px-4 py-3 border-t border-border-light dark:border-border-dark sm:px-6">
+        <div class="flex items-center justify-between">
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-sm text-text-muted-light dark:text-text-muted-dark">
+                        Mostrando <span class="font-medium text-text-main-light dark:text-text-main-dark">{{ produtos|length }}</span> produtos
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

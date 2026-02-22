@@ -2,7 +2,7 @@ import psycopg2
 from flask import Flask, render_template, request, redirect, session, flash, url_for
 from flask_wtf.csrf import CSRFProtect
 from markupsafe import Markup
-
+from datetime import datetime, timedelta, date
 from formularios import FormularioProduto, FormularioUsuario, FormularioCadastro, FormularioFornecedor
 
 app = Flask(__name__)
@@ -58,6 +58,24 @@ def buscar_produtos():
     conn.close()
     return [Produto(*produto) for produto in produtos]
 
+def buscar_produtos_por_termo(termo):
+    conn = conecta_bd()
+    cur = conn.cursor()
+    termo_busca = f"%{termo}%"
+    
+    cur.execute('''
+        SELECT p.id, p.nome_produto, p.codigo, p.preco, p.quantidade, 
+               p.data_validade, p.fornecedor_id, p.usuario_criador, p.categoria, f.nome_fornecedor 
+        FROM produtos p
+        LEFT JOIN fornecedores f ON p.fornecedor_id = f.id
+        WHERE p.nome_produto ILIKE %s OR p.codigo ILIKE %s
+        ORDER BY p.id DESC
+    ''', (termo_busca, termo_busca))
+    
+    produtos = cur.fetchall()
+    conn.close()
+    return [Produto(*produto) for produto in produtos]
+
 def buscar_fornecedores():
     conn = conecta_bd()
     cur = conn.cursor()
@@ -90,6 +108,44 @@ def buscar_produtos_por_usuario(nickname):
     conn.close()
     return [Produto(*produto) for produto in produtos]
 
+def buscar_categorias():
+    conn = conecta_bd()
+    cur = conn.cursor()
+    cur.execute('SELECT DISTINCT categoria FROM produtos WHERE categoria IS NOT NULL ORDER BY categoria')
+    categorias = [row[0] for row in cur.fetchall()]
+    conn.close()
+    return categorias
+
+def buscar_produtos_filtro(termo=None, categoria=None, fornecedor_id=None):
+    conn = conecta_bd()
+    cur = conn.cursor()
+    
+    query = '''
+        SELECT p.id, p.nome_produto, p.codigo, p.preco, p.quantidade, 
+               p.data_validade, p.fornecedor_id, p.usuario_criador, p.categoria, f.nome_fornecedor 
+        FROM produtos p
+        LEFT JOIN fornecedores f ON p.fornecedor_id = f.id
+        WHERE 1=1
+    '''
+    params = []
+    
+    if termo:
+        query += " AND (p.nome_produto ILIKE %s OR p.codigo ILIKE %s)"
+        params.extend([f"%{termo}%", f"%{termo}%"])
+    if categoria:
+        query += " AND p.categoria = %s"
+        params.append(categoria)
+    if fornecedor_id:
+        query += " AND p.fornecedor_id = %s"
+        params.append(fornecedor_id)
+        
+    query += " ORDER BY p.id DESC"
+    
+    cur.execute(query, tuple(params))
+    produtos = cur.fetchall()
+    conn.close()
+    return [Produto(*produto) for produto in produtos]
+
 def buscar_usuarios():
     conn = conecta_bd()
     cur = conn.cursor()
@@ -103,8 +159,49 @@ def index():
     if 'usuario_logado' not in session or session['usuario_logado'] is None:
         return redirect(url_for('login'))
 
-    produtos = buscar_produtos()
-    return render_template('lista.html', titulo='MarketControl', produtos=produtos)
+    termo_busca = request.args.get('q', '')
+    categoria_filtro = request.args.get('categoria', '')
+    fornecedor_filtro = request.args.get('fornecedor', '')
+
+    produtos = buscar_produtos_filtro(termo_busca, categoria_filtro, fornecedor_filtro)
+    
+    categorias = buscar_categorias()
+    fornecedores_lista = buscar_fornecedores()
+
+    todos_produtos = buscar_produtos()
+    estoque_baixo = 0
+    vencendo_breve = 0
+    hoje = datetime.now().date()
+    limite_validade = hoje + timedelta(days=15)
+
+    for p in todos_produtos:
+        try:
+            if int(p.quantidade) <= 10:
+                estoque_baixo += 1
+        except (ValueError, TypeError):
+            pass
+            
+        try:
+            data_val = None
+            if isinstance(p.data_validade, datetime):
+                data_val = p.data_validade.date()
+            elif isinstance(p.data_validade, date):
+                data_val = p.data_validade
+            elif isinstance(p.data_validade, str) and p.data_validade.strip():
+                if '-' in p.data_validade:
+                    data_val = datetime.strptime(p.data_validade, '%Y-%m-%d').date()
+                elif '/' in p.data_validade:
+                    data_val = datetime.strptime(p.data_validade, '%d/%m/%Y').date()
+            
+            if data_val and data_val <= limite_validade:
+                vencendo_breve += 1
+        except Exception:
+            pass
+
+    return render_template('lista.html', titulo='MarketControl', produtos=produtos, 
+                           estoque_baixo=estoque_baixo, vencendo_breve=vencendo_breve,
+                           categorias=categorias, fornecedores_lista=fornecedores_lista,
+                           termo_busca=termo_busca, categoria_filtro=categoria_filtro, fornecedor_filtro=fornecedor_filtro)
 
 @app.route('/novo')
 def novo():
@@ -361,7 +458,7 @@ def autenticar():
             usuario = usuarios[username]
             if form.senha.data == usuario.senha:
                 session['usuario_logado'] = usuario.nickname
-                flash(f'{usuario.nickname} logado com sucesso!')
+                
                 proxima_pagina = request.form.get('proxima', url_for('index'))
                 return redirect(proxima_pagina)
         else:

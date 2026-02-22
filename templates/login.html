@@ -1,56 +1,114 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Login - MarketControl</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+    
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#4CAF50",
+                        "primary-hover": "#43A047",
+                        "danger": "#EF5350",
+                        "background-light": "#F3F4F6",
+                        "background-dark": "#111827",
+                        "surface-light": "#FFFFFF",
+                        "surface-dark": "#1F2937",
+                        "text-main-light": "#1F2937",
+                        "text-main-dark": "#F9FAFB",
+                        "text-muted-light": "#6B7280",
+                        "text-muted-dark": "#9CA3AF",
+                        "border-light": "#E5E7EB",
+                        "border-dark": "#374151",
+                    },
+                    fontFamily: {
+                        body: ["Inter", "sans-serif"],
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                    }
+                },
+            },
+        };
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
-<body class="login">
-    <div class="container">
-        <div class="row mt-5">
-            <div class="col-md-6">
-                <h1>Bem-vindo ao MarketControl</h1>
-                <p>Com uma interface amigável, você pode facilmente adicionar, editar e excluir produtos, garantindo que seu cadastro esteja sempre atualizado.</p>
-                <img src="{{ url_for('static', filename='images/frutas.png') }}" alt="Alimentos" class="img-fluid">
+<body class="bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark transition-colors duration-300 min-h-screen flex font-body">
+    
+    <div class="flex flex-col md:flex-row w-full min-h-screen">
+        
+        <div class="hidden md:flex md:w-1/2 bg-primary flex-col justify-center items-center p-12 text-white">
+            <div class="max-w-md text-center">
+                <div class="flex items-center justify-center mb-4">
+                    <span class="material-icons-outlined text-5xl mr-2">storefront</span>
+                    <h1 class="text-4xl font-bold tracking-tight">MarketControl</h1>
+                </div>
+                <h2 class="text-2xl font-medium mb-4">Bem-vindo de volta!</h2>
+                <p class="text-green-100 mb-8 text-lg">Com uma interface amigável, você pode facilmente adicionar, editar e excluir produtos, garantindo que seu cadastro esteja sempre atualizado.</p>
+                <img src="{{ url_for('static', filename='images/frutas.png') }}" alt="Alimentos" class="w-full drop-shadow-2xl rounded-xl">
             </div>
-            <div class="col-md-6">
-                <h1>Faça seu login</h1>
+        </div>
+
+        <div class="w-full md:w-1/2 flex items-center justify-center p-6 sm:p-12 relative">
+            
+            <button class="absolute top-6 right-6 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-text-muted-light dark:text-text-muted-dark transition-colors" onclick="document.documentElement.classList.toggle('dark')">
+                <span class="material-icons-outlined dark:hidden">dark_mode</span>
+                <span class="material-icons-outlined hidden dark:block">light_mode</span>
+            </button>
+
+            <div class="w-full max-w-md bg-surface-light dark:bg-surface-dark rounded-2xl shadow-soft p-8 border border-border-light dark:border-border-dark">
+                
+                <div class="text-center mb-8 md:hidden">
+                    <div class="flex items-center justify-center text-primary mb-2">
+                        <span class="material-icons-outlined text-4xl mr-2">storefront</span>
+                        <h1 class="text-3xl font-bold tracking-tight">MarketControl</h1>
+                    </div>
+                </div>
+
+                <h2 class="text-2xl font-bold mb-6 text-center">Faça seu login</h2>
 
                 {% with messages = get_flashed_messages(with_categories=true) %}
-{% if messages %}
-    <ul class="list-unstyled">
-        {% for category, message in messages %}
-            
-            {% set classe_alerta = category if category != 'message' else 'danger' %}
-            
-            <li class="alert alert-{{ classe_alerta }}">{{ message }}</li>
-            
-        {% endfor %}
-    </ul>
-{% endif %}
-{% endwith %}
+                    {% if messages %}
+                        <div class="mb-6">
+                            {% for category, message in messages %}
+                                {% set bg_color = 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800' if category == 'danger' or category == 'error' else 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800' %}
+                                <div class="p-3 rounded-md border text-sm {{ bg_color }} mb-2">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
 
-                <form method="POST" action="{{ url_for('autenticar') }}">
+                <form method="POST" action="{{ url_for('autenticar') }}" class="space-y-5">
                     <input type="hidden" name="proxima" value="{{ proxima }}">
                     {{ form.csrf_token }}
 
-                    <div class="form-group">
-                        {{ form.nickname.label(class="form-label") }}
-                        {{ form.nickname(class="form-control") }}
+                    <div>
+                        {{ form.nickname.label(class="block text-sm font-medium text-text-main-light dark:text-text-main-dark mb-1") }}
+                        {{ form.nickname(class="w-full rounded-md border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-text-main-light dark:text-text-main-dark focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 transition-colors shadow-sm", placeholder="Seu usuário") }}
                     </div>
 
-                    <div class="form-group">
-                        {{ form.senha.label(class="form-label") }}
-                        {{ form.senha(class="form-control") }}
+                    <div>
+                        {{ form.senha.label(class="block text-sm font-medium text-text-main-light dark:text-text-main-dark mb-1") }}
+                        {{ form.senha(class="w-full rounded-md border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-text-main-light dark:text-text-main-dark focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 transition-colors shadow-sm", placeholder="Sua senha") }}
                     </div>
 
-                    <div class="form-group mt-4">
-                        {{ form.login(class="btn btn-success btn-block") }}
-                        <p class="text-left mt-3">
-                        Não tem conta? 
-                        <a href="{{ url_for('cadastrar') }}" class="link-verde">Cadastre-se</a>
+                    <div class="pt-2">
+                        {{ form.login(class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors cursor-pointer") }}
+                        
+                        <p class="text-center mt-5 text-sm text-text-muted-light dark:text-text-muted-dark">
+                            Não tem conta? 
+                            <a href="{{ url_for('cadastrar') }}" class="font-medium text-primary hover:text-primary-hover transition-colors">Cadastre-se</a>
                         </p>
                     </div>
                 </form>

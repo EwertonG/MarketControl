@@ -1,35 +1,69 @@
 {% extends "template.html" %}
 
 {% block page_header %}
-    <div class="page-header mt-4">
-        <h1>Cadastro de Fornecedor</h1>
+<div class="mb-8 max-w-2xl mx-auto">
+    <div class="flex items-center space-x-4 mb-2">
+        <a href="{{ url_for('fornecedores') }}" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-text-muted-light dark:text-text-muted-dark transition-colors">
+            <span class="material-icons-outlined text-2xl">arrow_back</span>
+        </a>
+        <div>
+            <h1 class="text-3xl font-bold text-text-main-light dark:text-text-main-dark tracking-tight">Cadastro de Fornecedor</h1>
+            <p class="mt-1 text-sm text-text-muted-light dark:text-text-muted-dark">Preencha os dados abaixo para adicionar um novo parceiro.</p>
+        </div>
     </div>
+</div>
 {% endblock %}
 
 {% block conteudo %}
-    <form action="{{ url_for('criar_fornecedor') }}" method="post">
-        <fieldset>
+<div class="max-w-2xl mx-auto">
+    <div class="bg-surface-light dark:bg-surface-dark rounded-2xl shadow-soft border border-border-light dark:border-border-dark p-6 sm:p-8">
+        
+        <form action="{{ url_for('criar_fornecedor') }}" method="post" class="space-y-6">
             {{ form.csrf_token() }}
             
-            <div class="form-group">
-                {{ form.nome_fornecedor.label(class="form-label") }}
-                {{ form.nome_fornecedor(class="form-control", placeholder="Ex: Fornecedora ABC") }}
+            <div class="space-y-1">
+                {{ form.nome_fornecedor.label(class="block text-sm font-medium text-text-main-light dark:text-text-main-dark") }}
+                <div class="relative rounded-md shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span class="material-icons-outlined text-text-muted-light dark:text-text-muted-dark opacity-70">business</span>
+                    </div>
+                    {{ form.nome_fornecedor(class="block w-full pl-10 rounded-md border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-text-main-light dark:text-text-main-dark focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 transition-colors shadow-sm", placeholder="Ex: Fornecedora ABC") }}
+                </div>
             </div>
             
-            <div class="form-group">
-                {{ form.telefone.label(class="form-label") }}
-                {{ form.telefone(class="form-control", placeholder="Ex: (11) 99999-9999") }}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <div class="space-y-1">
+                    {{ form.telefone.label(class="block text-sm font-medium text-text-main-light dark:text-text-main-dark") }}
+                    <div class="relative rounded-md shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="material-icons-outlined text-text-muted-light dark:text-text-muted-dark opacity-70">phone</span>
+                        </div>
+                        {{ form.telefone(class="block w-full pl-10 rounded-md border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-text-main-light dark:text-text-main-dark focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 transition-colors shadow-sm", placeholder="Ex: (11) 99999-9999") }}
+                    </div>
+                </div>
+                
+                <div class="space-y-1">
+                    {{ form.email.label(class="block text-sm font-medium text-text-main-light dark:text-text-main-dark") }}
+                    <div class="relative rounded-md shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="material-icons-outlined text-text-muted-light dark:text-text-muted-dark opacity-70">email</span>
+                        </div>
+                        {{ form.email(class="block w-full pl-10 rounded-md border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-text-main-light dark:text-text-main-dark focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 transition-colors shadow-sm", placeholder="Ex: contato@fornecedora.com", type="email") }}
+                    </div>
+                </div>
+
             </div>
             
-            <div class="form-group">
-                {{ form.email.label(class="form-label") }}
-                {{ form.email(class="form-control", placeholder="Ex: contato@fornecedora.com", type="email") }}
+            <div class="pt-4 flex flex-col sm:flex-row gap-3">
+                {{ form.salvar(class="flex-1 flex justify-center items-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors cursor-pointer", value="Salvar Fornecedor") }}
+                
+                <a href="{{ url_for('fornecedores') }}" class="flex-1 flex justify-center items-center py-2.5 px-4 border border-border-light dark:border-border-dark rounded-md shadow-sm text-sm font-medium text-text-main-light dark:text-text-main-dark bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors text-center">
+                    Cancelar
+                </a>
             </div>
             
-            <div class="form-group mt-4">
-                {{ form.salvar(class="btn btn-primary") }}
-                <a class="btn btn-danger" href="{{ url_for('index') }}">Voltar</a>
-            </div>
-        </fieldset>
-    </form>
+        </form>
+    </div>
+</div>
 {% endblock %}
