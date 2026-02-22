@@ -118,3 +118,14 @@ input[type=text], input[type=password], input[type=number], input[type=date] {
 .page-header {
     text-align: center;
 }
+
+.link-verde {
+    color: #4CAF50;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.link-verde:hover {
+    color: #45a049;
+    text-decoration: underline;
+}

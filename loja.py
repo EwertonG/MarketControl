@@ -163,6 +163,11 @@ def deletar(id):
     flash('Produto removido com sucesso!')
     return redirect(url_for('index'))
 
+@app.route('/cadastrar')
+def cadastrar():
+    
+    return render_template('cadastro.html', titulo='Cadastro de Usuário')
+
 @app.route('/login')
 def login():
     proxima = request.args.get('proxima', url_for('index'))
