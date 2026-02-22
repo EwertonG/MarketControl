@@ -27,12 +27,16 @@
                 {{ form.quantidade(class="form-control") }}
             </div>
             <div class="form-group">
-            {{ form.data_validade.label(class="form-label") }}
-            {{ form.data_validade(class="form-control", type="date") }}
+                {{ form.data_validade.label(class="form-label") }}
+                {{ form.data_validade(class="form-control", type="date") }}
             </div>
             <div class="form-group">
-                {{ form.fornecedor.label(class="form-label") }}
-                {{ form.fornecedor(class="form-control") }}
+                {{ form.fornecedor_id.label(class="form-label") }}
+                {{ form.fornecedor_id(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.categoria.label(class="form-label") }}
+                {{ form.categoria(class="form-control") }}
             </div>
             <div class="form-group">
                 {{ form.salvar(class="btn btn-primary") }}

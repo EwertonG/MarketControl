@@ -1,0 +1,35 @@
+{% extends "template.html" %}
+
+{% block page_header %}
+    <div class="page-header mt-4">
+        <h1 class="text-center">Edição de Fornecedor</h1>
+        <div class="text-start mb-3">
+            <a class="btn btn-secondary" href="{{ url_for('fornecedores') }}">Voltar para a Lista</a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block conteudo %}
+    <form method="POST" action="{{ url_for('editar_fornecedor', id=id) }}">
+        {{ form.csrf_token() }}
+        
+        <div class="form-group">
+            {{ form.nome_fornecedor.label(class="form-label") }}
+            {{ form.nome_fornecedor(class="form-control") }}
+        </div>
+        
+        <div class="form-group">
+            {{ form.telefone.label(class="form-label") }}
+            {{ form.telefone(class="form-control") }}
+        </div>
+        
+        <div class="form-group">
+            {{ form.email.label(class="form-label") }}
+            {{ form.email(class="form-control") }}
+        </div>
+        
+        <div class="form-group mt-4">
+            {{ form.salvar(class="btn btn-success", value="Atualizar Fornecedor") }}
+        </div>
+    </form>
+{% endblock %}
