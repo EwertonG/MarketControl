@@ -18,15 +18,19 @@
             <div class="col-md-6">
                 <h1>Faça seu login</h1>
 
-                {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    <ul class="list-unstyled">
-                        {% for message in messages %}
-                            <li class="alert alert-danger">{{ message }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-                {% endwith %}
+                {% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    <ul class="list-unstyled">
+        {% for category, message in messages %}
+            
+            {% set classe_alerta = category if category != 'message' else 'danger' %}
+            
+            <li class="alert alert-{{ classe_alerta }}">{{ message }}</li>
+            
+        {% endfor %}
+    </ul>
+{% endif %}
+{% endwith %}
 
                 <form method="POST" action="{{ url_for('autenticar') }}">
                     <input type="hidden" name="proxima" value="{{ proxima }}">

@@ -14,3 +14,10 @@ class FormularioUsuario(FlaskForm):
     nickname = StringField('Usuário',[validators.DataRequired(), validators.Length(min=1, max=50)] )
     senha = PasswordField ('Senha', [validators.DataRequired(), validators.Length(min=1, max=50)])
     login = SubmitField('Login')
+
+    # Adicione no final do arquivo formularios.py
+class FormularioCadastro(FlaskForm):
+    nome = StringField('Nome Completo', [validators.DataRequired(), validators.Length(min=1, max=100)])
+    nickname = StringField('Usuário (Nickname)', [validators.DataRequired(), validators.Length(min=1, max=50)])
+    senha = PasswordField('Senha', [validators.DataRequired(), validators.Length(min=1, max=50)])
+    cadastrar = SubmitField('Finalizar Cadastro')

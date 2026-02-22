@@ -16,31 +16,45 @@
                 <img src="{{ url_for('static', filename='images/frutas.png') }}" alt="Alimentos" class="img-fluid">
             </div>
             <div class="col-md-6">
-                <h1>Dados de Cadastro</h1>
+    <h1>Dados de Cadastro</h1>
 
-                <form method="POST" action="#">
-                    <div class="form-group">
-                        <label for="nome" class="form-label">Nome Completo</label>
-                        <input type="text" name="nome" class="form-control" placeholder="Ex: Ewerton Gomes" required>
-                    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    <ul class="list-unstyled">
+        {% for category, message in messages %}
+            
+            {% set classe_alerta = category if category != 'message' else 'danger' %}
+            
+            <li class="alert alert-{{ classe_alerta }}">{{ message }}</li>
+            
+        {% endfor %}
+    </ul>
+{% endif %}
+{% endwith %}
 
-                    <div class="form-group">
-                        <label for="nickname" class="form-label">Usuário (Nickname)</label>
-                        <input type="text" name="nickname" class="form-control" placeholder="Seu nome de usuário" required>
-                    </div>
+    <form method="POST" action="{{ url_for('cadastrar') }}">
+        {{ form.csrf_token }}
 
-                    <div class="form-group">
-                        <label for="senha" class="form-label">Senha</label>
-                        <input type="password" name="senha" class="form-control" placeholder="Crie uma senha forte" required>
-                    </div>
-
-                    <div class="form-group mt-4">
-                        <button type="submit" class="btn btn-success btn-block">Finalizar Cadastro</button>
-                        <a class="btn btn-secondary btn-block" href="{{ url_for('login') }}">Já tenho conta (Login)</a>
-                    </div>
-                </form>
-            </div>
+        <div class="form-group">
+            {{ form.nome.label(class="form-label") }}
+            {{ form.nome(class="form-control", placeholder="Ex: Ewerton Gomes") }}
         </div>
-    </div>
+
+        <div class="form-group">
+            {{ form.nickname.label(class="form-label") }}
+            {{ form.nickname(class="form-control", placeholder="Seu nome de usuário") }}
+        </div>
+
+        <div class="form-group">
+            {{ form.senha.label(class="form-label") }}
+            {{ form.senha(class="form-control", placeholder="Crie uma senha forte") }}
+        </div>
+
+        <div class="form-group mt-4">
+            {{ form.cadastrar(class="btn btn-success btn-block w-100") }}
+            <a class="btn btn-secondary btn-block w-100 mt-2" href="{{ url_for('login') }}">Já tenho conta (Login)</a>
+        </div>
+    </form>
+</div>
 </body>
 </html>

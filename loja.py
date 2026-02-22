@@ -3,7 +3,7 @@ from flask import Flask, render_template, request, redirect, session, flash, url
 from flask_wtf.csrf import CSRFProtect
 from markupsafe import Markup
 
-from formularios import FormularioProduto, FormularioUsuario
+from formularios import FormularioProduto, FormularioUsuario, FormularioCadastro
 
 app = Flask(__name__)
 app.secret_key = 'ewerton'
@@ -11,7 +11,7 @@ app.secret_key = 'ewerton'
 csrf = CSRFProtect(app)
 
 class Produto:
-    def __init__(self, id, nome_produto, codigo, preco, quantidade, data_validade, fornecedor):
+    def __init__(self, id, nome_produto, codigo, preco, quantidade, data_validade, fornecedor, usuario_criador=None):
         self.id = id
         self.nome_produto = nome_produto
         self.codigo = codigo
@@ -19,6 +19,7 @@ class Produto:
         self.quantidade = quantidade
         self.data_validade = data_validade
         self.fornecedor = fornecedor
+        self.usuario_criador = usuario_criador
 
 class Usuario:
     def __init__(self, nome, nickname, senha):
@@ -37,7 +38,7 @@ def conecta_bd():
 def buscar_produtos():
     conn = conecta_bd()
     cur = conn.cursor()
-    cur.execute('SELECT id, nome_produto, codigo, preco, quantidade, data_validade, fornecedor FROM produtos')
+    cur.execute('SELECT id, nome_produto, codigo, preco, quantidade, data_validade, fornecedor, usuario_criador FROM produtos')
     produtos = cur.fetchall()
     conn.close()
     return [Produto(*produto) for produto in produtos]
@@ -45,10 +46,18 @@ def buscar_produtos():
 def adicionar_produto(produto):
     conn = conecta_bd()
     cur = conn.cursor()
-    cur.execute('INSERT INTO produtos (nome_produto, codigo, preco, quantidade, data_validade, fornecedor) VALUES (%s, %s, %s, %s, %s, %s)',
-                (produto.nome_produto, produto.codigo, produto.preco, produto.quantidade, produto.data_validade, produto.fornecedor))
+    cur.execute('INSERT INTO produtos (nome_produto, codigo, preco, quantidade, data_validade, fornecedor, usuario_criador) VALUES (%s, %s, %s, %s, %s, %s, %s)',
+                (produto.nome_produto, produto.codigo, produto.preco, produto.quantidade, produto.data_validade, produto.fornecedor, produto.usuario_criador))
     conn.commit()
     conn.close()
+
+def buscar_produtos_por_usuario(nickname):
+    conn = conecta_bd()
+    cur = conn.cursor()
+    cur.execute('SELECT id, nome_produto, codigo, preco, quantidade, data_validade, fornecedor, usuario_criador FROM produtos WHERE usuario_criador = %s', (nickname,))
+    produtos = cur.fetchall()
+    conn.close()
+    return [Produto(*produto) for produto in produtos]
 
 def buscar_usuarios():
     conn = conecta_bd()
@@ -84,6 +93,8 @@ def criar():
     data_validade = form.data_validade.data
     fornecedor = form.fornecedor.data
 
+    usuario_logado = session.get('usuario_logado')
+
     conn = conecta_bd()
     cur = conn.cursor()
 
@@ -95,7 +106,7 @@ def criar():
         conn.close()
         return redirect(url_for('novo'))
 
-    novo_produto = Produto(None, nome_produto, codigo, preco, quantidade, data_validade, fornecedor)
+    novo_produto = Produto(None, nome_produto, codigo, preco, quantidade, data_validade, fornecedor, usuario_logado)
     adicionar_produto(novo_produto)
     conn.close()
 
@@ -163,10 +174,45 @@ def deletar(id):
     flash('Produto removido com sucesso!')
     return redirect(url_for('index'))
 
-@app.route('/cadastrar')
-def cadastrar():
+@app.route('/meus_produtos')
+def meus_produtos():
+    if 'usuario_logado' not in session or session['usuario_logado'] is None:
+        return redirect(url_for('login', proxima=url_for('meus_produtos')))
     
-    return render_template('cadastro.html', titulo='Cadastro de Usuário')
+    usuario_atual = session['usuario_logado']
+    
+    produtos = buscar_produtos_por_usuario(usuario_atual)
+    
+    return render_template('meus_produtos.html', titulo='Meus Produtos', produtos=produtos)
+
+@app.route('/cadastrar', methods=['GET', 'POST'])
+def cadastrar():
+    form = FormularioCadastro(request.form)
+
+    if request.method == 'POST' and form.validate_on_submit():
+        nome = form.nome.data
+        nickname = form.nickname.data
+        senha = form.senha.data
+
+        conn = conecta_bd()
+        cur = conn.cursor()
+
+        cur.execute('SELECT COUNT(*) FROM usuarios WHERE nickname = %s', (nickname,))
+        existe_usuario = cur.fetchone()[0] > 0
+
+        if existe_usuario:
+            flash(f'O usuário "{nickname}" já está em uso. Por favor, escolha outro.')
+            conn.close()
+            return redirect(url_for('cadastrar'))
+
+        cur.execute('INSERT INTO usuarios (nome, nickname, senha) VALUES (%s, %s, %s)', (nome, nickname, senha))
+        conn.commit()
+        conn.close()
+
+        flash('Cadastro realizado com sucesso! Agora você já pode fazer seu login.', 'success')
+        return redirect(url_for('login'))
+
+    return render_template('cadastro.html', titulo='Cadastro de Usuário', form=form)
 
 @app.route('/login')
 def login():
