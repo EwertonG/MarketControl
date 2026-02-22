@@ -3,7 +3,7 @@
 {% block page_header %}
 <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
     <div>
-        <p class="text-primary font-medium text-lg mb-1">Olá, {{ session['usuario_logado'] }}! 👋</p>
+        <p class="text-primary font-medium text-lg mb-1">Olá, {{ session.get('nome_usuario', session['usuario_logado']) }}! 👋</p>
         <h1 class="text-3xl font-bold text-text-main-light dark:text-text-main-dark tracking-tight">Lista de Produtos</h1>
         <p class="mt-1 text-sm text-text-muted-light dark:text-text-muted-dark">Gerencie o estoque do supermercado de forma eficiente.</p>
     </div>

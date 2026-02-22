@@ -459,6 +459,9 @@ def autenticar():
             if form.senha.data == usuario.senha:
                 session['usuario_logado'] = usuario.nickname
                 
+                # NOVA LINHA: Guarda o nome real do usuário na sessão
+                session['nome_usuario'] = usuario.nome 
+                
                 proxima_pagina = request.form.get('proxima', url_for('index'))
                 return redirect(proxima_pagina)
         else:
