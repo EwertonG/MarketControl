@@ -69,8 +69,11 @@ def buscar_usuarios():
 
 @app.route('/')
 def index():
+    if 'usuario_logado' not in session or session['usuario_logado'] is None:
+        return redirect(url_for('login'))
+
     produtos = buscar_produtos()
-    return render_template('lista.html', titulo='CadastraFácil', produtos=produtos)
+    return render_template('lista.html', titulo='MarketControl', produtos=produtos)
 
 @app.route('/novo')
 def novo():
@@ -246,8 +249,8 @@ def autenticar():
 @app.route('/logout')
 def logout():
     session['usuario_logado'] = None
-    flash('Logout efetuado com sucesso!')
-    return redirect(url_for('index'))
+    
+    return redirect(url_for('login'))
 
 if __name__ == '__main__':
     app.run(debug=True)
