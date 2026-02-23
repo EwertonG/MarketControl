@@ -41,7 +41,7 @@ def conecta_bd():
         host="localhost",
         database="loja",
         user="postgres",
-        password="29033"
+        password="122710"
     )
 
 def buscar_produtos():
@@ -171,13 +171,25 @@ def index():
     todos_produtos = buscar_produtos()
     estoque_baixo = 0
     vencendo_breve = 0
+    valor_total_estoque = 0.0
     hoje = datetime.now().date()
     limite_validade = hoje + timedelta(days=15)
 
     for p in todos_produtos:
         try:
-            if int(p.quantidade) <= 10:
+            qtd = int(p.quantidade)
+            if qtd <= 10:
                 estoque_baixo += 1
+                
+            try:
+                if isinstance(p.preco, str):
+                    preco_str = p.preco.replace('R$', '').replace('.', '').strip().replace(',', '.')
+                    preco = float(preco_str)
+                else:
+                    preco = float(p.preco) if p.preco else 0.0
+                valor_total_estoque += preco * qtd
+            except (ValueError, TypeError):
+                pass
         except (ValueError, TypeError):
             pass
             
@@ -198,8 +210,11 @@ def index():
         except Exception:
             pass
 
+    valor_total_formatado = f"{valor_total_estoque:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
     return render_template('lista.html', titulo='MarketControl', produtos=produtos, 
                            estoque_baixo=estoque_baixo, vencendo_breve=vencendo_breve,
+                           valor_total_estoque=valor_total_formatado,
                            categorias=categorias, fornecedores_lista=fornecedores_lista,
                            termo_busca=termo_busca, categoria_filtro=categoria_filtro, fornecedor_filtro=fornecedor_filtro)
 
