@@ -25,10 +25,10 @@ def conecta_bd():
 7. Com o banco de dados configurado e todas as dependências instaladas, você já pode rodar o projeto. No terminal, execute o seguinte comando para rodar a aplicação: python loja.py 
 O servidor Flask deve iniciar, e você pode acessar o sistema pelo navegador.
 
-Link do modelo ER: https://drive.google.com/file/d/1wnVOc2b1huB-8HpwepAYyXEpbmwzaoaj/view?usp=sharing
-Link do mapeamento ER: https://drive.google.com/file/d/1_vgbQAIf4n78EXfKUMmhcxeB7jivAEb9/view?usp=sharing
+Link do modelo ER: 
+Link do mapeamento ER: 
 
-Informações sobre mim:
-- Nome: Ewerton Gomes Barcia 
-- Matrícula: 22.2.8066
-- Turma 1: CSI440
+Nome do Grupo:
+- Ewerton Gomes Barcia | 22.2.8066
+- Kelvin
+- Matheus
