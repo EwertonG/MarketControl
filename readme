@@ -1,4 +1,4 @@
-Execução da aplicação web chamada "CadastraFácil" desenvolvida em Flask,  um framework web em Python para o backend e outras tecnologias, como PostgreSQL, Flask-WTF, Bootstrap, CSS, e Jinja2, que executa o cadastramento, edição, listagem e exclusão de produtos diversos. Ele oferece uma interface intuitiva para facilitar a gestão de produtos, além de contar com funcionalidades de autenticação de usuários. 
+Execução da aplicação web chamada "MarketControl" desenvolvida em Flask,  um framework web em Python para o backend e outras tecnologias, como PostgreSQL, Flask-WTF, Bootstrap, CSS, e Jinja2, que executa o cadastramento, edição, listagem e exclusão de produtos diversos. Ele oferece uma interface intuitiva para facilitar a gestão de produtos, além de contar com funcionalidades de autenticação de usuários. 
 
 Passo a passo para execução do script:
 
