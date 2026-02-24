@@ -1,5 +1,5 @@
 -- 1. Tabela de Usuários
--- O nickname é a chave primária, pois é único para cada usuário e usado no login.
+
 CREATE TABLE usuarios (
     nickname VARCHAR(50) PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
@@ -24,12 +24,10 @@ CREATE TABLE produtos (
     data_validade DATE,
     categoria VARCHAR(50),
     
-    -- Chaves Estrangeiras (Relacionamentos)
     fornecedor_id INTEGER REFERENCES fornecedores(id) ON DELETE RESTRICT,
     usuario_criador VARCHAR(50) REFERENCES usuarios(nickname) ON DELETE SET NULL
 );
 
--- 4. Inserção de um usuário administrador padrão (Opcional, mas útil para o primeiro login)
 INSERT INTO usuarios (nome, nickname, senha) 
-VALUES ('Administrador', 'admin', 'admin123')
+VALUES ('ADMINISTRADOR', 'admin', 'admin')
 ON CONFLICT (nickname) DO NOTHING;

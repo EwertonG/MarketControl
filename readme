@@ -1,6 +1,90 @@
-Execução da aplicação web chamada "MarketControl" desenvolvida em Flask,  um framework web em Python para o backend e outras tecnologias, como PostgreSQL, Flask-WTF, Bootstrap, CSS, e Jinja2, que executa o cadastramento, edição, listagem e exclusão de produtos diversos. Ele oferece uma interface intuitiva para facilitar a gestão de produtos, além de contar com funcionalidades de autenticação de usuários. 
+Market Control
 
-Passo a passo para execução do script:
+Nosso projeto é uma aplicaçao de gerenciamento de estoque para um mercado.
+
+Desenvolvimento:
+- Nome: Ewerton Gomes Barcia, Matheus Moreira Marinho, Kelvin Fernando Milagres de Castro
+- Matrícula: 22.2.8066, 22.2.8058, 23.1.8161
+- Turma : CSI602
+
+Nosso projeto Market Control é uma aplicação web desenvolvida para realizar um controle de estoque de um mercado/loja (supermercado), nele utiizamos o Flask, que é um framework web em Python para o backend e outras tecnologias, como PostgreSQL, Flask-WTF, Tailwind CSS, e Jinja2, que o usuario(s) fazem o login no sistema para que assim possa realizar o cadastramento, edição, listagem, exclusão e visualização de produtos diversos que possueu no estoque da sua mercearia. Nos desenvolvemos uma interface intuitiva para que o usuario(s) possa facilmente realizar as operações necessarias para o funcionamento do sistema e de acompanhamentos de diversos dados. 
+
+Como tabelas temos:
+
+### 1.1 Usuários (`usuarios`)
+
+| Atributo | Tipo | Restrições |
+|---|---|---|
+| `nickname` | VARCHAR(50) | **Chave Primária**, único, obrigatório |
+| `nome` | VARCHAR(100) | Obrigatório |
+| `senha` | VARCHAR(100) | Obrigatório |
+
+### 1.2 Fornecedores (`fornecedores`)
+
+| Atributo | Tipo | Restrições |
+|---|---|---|
+| `id` | SERIAL | **Chave Primária**, gerado automaticamente |
+| `nome_fornecedor` | VARCHAR(100) | Obrigatório |
+| `telefone` | VARCHAR(20) | Opcional |
+| `email` | VARCHAR(100) | Opcional |
+
+### 1.3 Produtos (`produtos`)
+
+| Atributo | Tipo | Restrições |
+|---|---|---|
+| `id` | SERIAL | **Chave Primária**, gerado automaticamente |
+| `nome_produto` | VARCHAR(100) | Obrigatório |
+| `codigo` | VARCHAR(50) | Obrigatório (código de barras) |
+| `preco` | NUMERIC(10,2) | Obrigatório |
+| `quantidade` | INTEGER | Obrigatório |
+| `data_validade` | DATE | Obrigatório |
+| `categoria` | VARCHAR(50) | Obrigatório |
+| `fornecedor_id` | INTEGER (FK) | Referencia `fornecedores(id)` |
+| `usuario_criador` | VARCHAR(50) (FK) | Referencia `usuarios(nickname)` |
+
+## 2. Relacionamentos entre Entidades
+
+- Um **Fornecedor** pode fornecer **muitos Produtos** (1:N)
+- Um **Usuário** pode cadastrar **muitos Produtos** (1:N)
+- Um **Produto** pertence a **um único Fornecedor**
+- Um **Produto** é registrado por **um único Usuário**
+
+## 3. Regras de Negócio
+
+### RN01 — Autenticação obrigatória
+Todas as funcionalidades do sistema (listagem, cadastro, edição, exclusão de produtos e fornecedores) exigem que o usuário esteja autenticado(tenha login e senha). Tentativas de acesso sem login redirecionam para a tela de login.
+
+### RN02 — Unicidade do nickname de usuário
+Não é permitido cadastrar dois usuários com o mesmo `nickname`. O sistema verifica a existência do nickname antes de inserir e exibe mensagem de erro caso já esteja em uso.
+
+### RN03 — Unicidade do nome de produto
+Não é permitido cadastrar dois produtos com o mesmo nome (`nome_produto`). O sistema verifica a duplicidade antes de inserir e bloqueia o cadastro se o nome já existir.
+
+### RN04 — Vinculação obrigatória de produto a fornecedor
+Todo produto deve estar vinculado a um fornecedor existente no sistema. O campo `fornecedor_id` é obrigatório no formulário de cadastro e edição.
+
+### RN05 — Rastreabilidade do criador do produto
+O sistema registra automaticamente qual usuário autenticado cadastrou cada produto (`usuario_criador`). Cada usuário pode visualizar apenas os produtos que ele mesmo cadastrou na tela "Meus Produtos".
+
+### RN06 — Restrição de exclusão de fornecedor com produtos vinculados
+Um fornecedor **não pode ser excluído** se houver produtos associados a ele no banco de dados (`ON DELETE RESTRICT`). O sistema trata essa exceção e exibe mensagem informativa ao usuário.
+
+### RN07 — Preservação do histórico ao excluir usuário
+Caso um usuário seja excluído do sistema, os produtos por ele cadastrados **não são removidos**. O campo `usuario_criador` dos produtos é definido como `NULL` (`ON DELETE SET NULL`), preservando o histórico de produtos.
+
+### RN08 — Alerta de estoque baixo
+O sistema identifica e contabiliza produtos com `quantidade <= 10` unidades, exibindo um alerta visual no painel principal para informar o operador sobre itens com estoque crítico.
+
+### RN09 — Alerta de produtos próximos ao vencimento
+O sistema identifica produtos cuja `data_validade` vencerá nos próximos **15 dias** a partir da data atual e exibe um alerta visual no painel principal.
+
+### RN10 — Filtragem e busca de produtos
+O sistema permite buscar produtos por **nome** ou **código** (busca parcial, sem distinção de maiúsculas/minúsculas), além de filtrar por **categoria** e por **fornecedor**, de forma combinada ou isolada.
+
+### RN11 — Usuário administrador padrão
+O banco de dados é inicializado com um usuário administrador padrão (`nickname: admin`, `senha: admin`), inserido apenas se ainda não existir.
+
+### Passo a passo para execução do script e fazer com que rode na sua maquina:
 
 1. Como pré-requisito, é necessário que tenha instalado em sua máquina um ambiente de desenvolvimento (Optei por utilizar o VS Code).
 
@@ -25,10 +109,72 @@ def conecta_bd():
 7. Com o banco de dados configurado e todas as dependências instaladas, você já pode rodar o projeto. No terminal, execute o seguinte comando para rodar a aplicação: python loja.py 
 O servidor Flask deve iniciar, e você pode acessar o sistema pelo navegador.
 
+Link do video: https://www.youtube.com/watch?v=O192ZmhJttE
 Link do modelo ER: 
 Link do mapeamento ER: 
 
 Nome do Grupo:
 - Ewerton Gomes Barcia | 22.2.8066
-- Kelvin
-- Matheus
+- Kelvin | 23.1.8161
+- Matheus | 22.2.8058
+
+8. Para povoar o banco de dados com amostras de dados(exemplos), execute o script SQL:
+
+INSERT INTO fornecedores (nome_fornecedor, telefone, email) VALUES
+('Distribuidora Alfa', '(31) 98888-1111', 'contato@alfa.com.br'),
+('Atacadão Beta', '(31) 98888-2222', 'vendas@beta.com.br'),
+('Gama Alimentos', '(38) 98888-3333', 'sac@gamaalimentos.com.br'),
+('Delta Bebidas', '(33) 98888-4444', 'pedidos@deltabebidas.com.br'),
+('Omega Limpeza', '(31) 98888-5555', 'contato@omegalimpeza.com.br'),
+('Zeta Hortifruti', '(31) 98888-6666', 'faleconosco@zetahorti.com.br'),
+('Sigma Laticínios', '(33) 98888-7777', 'vendas@sigmalaticinios.com.br'),
+('Tech Eletro', '(31) 98888-8888', 'suporte@techeletro.com.br'),
+('Papelaria Paper', '(31) 98888-9999', 'contato@paper.com.br'),
+('Carnes Premium', '(31) 97777-1111', 'frigorifico@premium.com.br'),
+('Padaria Pão Quente', '(31) 97777-2222', 'contato@paoquente.com.br'),
+('Doces Sonhos', '(31) 97777-3333', 'vendas@docessonhos.com.br'),
+('Moinho de Trigo', '(31) 97777-4444', 'vendas@moinho.com.br'),
+('Granja Ovos de Ouro', '(31) 97777-5555', 'contato@ovosdeouro.com.br'),
+('Fazenda Leiteira', '(38) 97777-6666', 'leite@fazenda.com.br'),
+('Cosméticos Bella', '(31) 97777-7777', 'vendas@bella.com.br'),
+('PetShop Cão&Gato', '(31) 97777-8888', 'fornecedor@caogato.com.br'),
+('Ferramentas Forte', '(38) 97777-9999', 'vendas@forte.com.br'),
+('Têxtil Fios', '(31) 96666-1111', 'contato@textilfios.com.br'),
+('Plásticos Flex', '(31) 96666-2222', 'vendas@flexplasticos.com.br'),
+('Embalagens Seguras', '(11) 96666-3333', 'vendas@embalagens.com.br'),
+('Temperos Mágicos', '(31) 96666-4444', 'contato@temperos.com.br'),
+('Café Torrado', '(31) 96666-5555', 'vendas@cafetorrado.com.br'),
+('Chás da Tarde', '(33) 96666-6666', 'contato@chastarde.com.br'),
+('Sorvetes Gelado', '(31) 96666-7777', 'vendas@gelado.com.br');
+
+INSERT INTO produtos (nome_produto, codigo, preco, quantidade, data_validade, categoria, fornecedor_id, usuario_criador) VALUES
+('Arroz Branco 5kg', 'AL-001', 25.90, 50, '2026-12-31', 'Alimentos', 1, 'admin'),
+('Feijão Carioca 1kg', 'AL-002', 8.50, 100, '2025-10-15', 'Alimentos', 2, 'ana_clara'),
+('Macarrão Espaguete 500g', 'AL-003', 4.20, 80, '2025-08-20', 'Alimentos', 3, 'bruno_oli'),
+('Óleo de Soja 900ml', 'AL-004', 6.80, 120, '2026-05-10', 'Alimentos', 1, 'carlos_ed'),
+('Refrigerante Cola 2L', 'BE-001', 8.99, 60, '2024-11-30', 'Bebidas', 4, 'dani_costa'),
+('Suco de Laranja 1L', 'BE-002', 6.50, 40, '2024-05-15', 'Bebidas', 4, 'edu_santos'),
+('Água Mineral 500ml', 'BE-003', 2.00, 200, '2027-01-01', 'Bebidas', 4, 'fe_lima'),
+('Detergente Líquido', 'LI-001', 2.50, 150, '2026-03-12', 'Limpeza', 5, 'gabi_martins'),
+('Sabão em Pó 1kg', 'LI-002', 12.90, 90, '2026-07-22', 'Limpeza', 5, 'helena_rod'),
+('Amaciante 2L', 'LI-003', 15.50, 45, '2026-09-10', 'Limpeza', 5, 'igor_per'),
+('Maçã Fuji 1kg', 'HO-001', 9.90, 30, '2024-03-10', 'Hortifruti', 6, 'juh_alves'),
+('Banana Nanica 1kg', 'HO-002', 5.50, 25, '2024-03-05', 'Hortifruti', 6, 'kleber_m'),
+('Queijo Mussarela 1kg', 'LA-001', 45.00, 15, '2024-04-20', 'Laticínios', 7, 'lari_mendes'),
+('Leite Integral 1L', 'LA-002', 5.20, 100, '2024-06-15', 'Laticínios', 15, 'marcos_silva'),
+('Iogurte Morango 170g', 'LA-003', 3.50, 50, '2024-03-25', 'Laticínios', 7, 'naty_rocha'),
+('Caderno Universitário', 'PA-001', 18.90, 80, '2024-03-25', 'Papelaria', 9, 'otavio_n'),
+('Caneta Esferográfica', 'PA-002', 2.50, 300, '2024-03-25', 'Papelaria', 9, 'paula_f'),
+('Picanha Bovina 1kg', 'CA-001', 89.90, 10, '2024-03-15', 'Carnes', 10, 'quintino_b'),
+('Peito de Frango 1kg', 'CA-002', 19.90, 40, '2024-03-20', 'Carnes', 10, 'rafa_gomes'),
+('Pão de Forma', 'PAO-001', 7.50, 35, '2024-03-12', 'Padaria', 11, 'samuel_d'),
+('Chocolate Ao Leite', 'DO-001', 5.99, 120, '2025-01-10', 'Doces', 12, 'tati_rib'),
+('Farinha de Trigo 1kg', 'AL-005', 4.80, 70, '2025-05-05', 'Alimentos', 13, 'ulysses_c'),
+('Ovos Brancos 1 Dúzia', 'AL-006', 9.50, 50, '2024-03-30', 'Alimentos', 14, 'vanessa_p'),
+('Shampoo Anticaspa', 'CO-001', 18.50, 40, '2026-11-15', 'Cosméticos', 16, 'wagner_m'),
+('Ração para Cães 15kg', 'PE-001', 120.00, 15, '2025-08-10', 'PetShop', 17, 'xavier_f'),
+('Chave de Fenda', 'FE-001', 15.00, 25, '2024-03-25', 'Ferramentas', 18, 'yasmin_c'),
+('Café em Pó 500g', 'AL-007', 18.90, 60, '2025-02-28', 'Alimentos', 23, 'admin'),
+('Pote Plástico 500ml', 'UT-001', 8.50, 100, '2024-03-25', 'Utensílios', 20, 'ana_clara'),
+('Saco de Lixo 50L', 'LI-004', 10.90, 80, '2024-03-25', 'Limpeza', 21, 'bruno_oli'),
+('Sorvete de Baunilha 2L', 'SO-001', 25.50, 20, '2024-09-15', 'Congelados', 25, 'carlos_ed');
