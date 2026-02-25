@@ -8,7 +8,7 @@ Desenvolvimento:
 - Turma : CSI602
 
 ### Ferramenta utilizada para a criação dos Modelos ER: brModelo
-### LINK DOS DIAGRAMAS: https://drive.google.com/drive/folders/1fauFZmRDyZsjbOsTEouAgN9IvIIrtOzv 
+### LINK DOS DIAGRAMAS: https://drive.google.com/drive/folders/1sgv-EAuQXNHleuO4g9619UPYHQAB5oO8?usp=sharing
 ### OBS: Para acessar os diagramas, use a conta .ufop.
 
 Nosso projeto Market Control é uma aplicação web desenvolvida para realizar um controle de estoque de um mercado/loja (supermercado), nele utiizamos o Flask, que é um framework web em Python para o backend e outras tecnologias, como PostgreSQL, Flask-WTF, Tailwind CSS, e Jinja2, que o usuario(s) fazem o login no sistema para que assim possa realizar o cadastramento, edição, listagem, exclusão e visualização de produtos diversos que possueu no estoque da sua mercearia. Nos desenvolvemos uma interface intuitiva para que o usuario(s) possa facilmente realizar as operações necessarias para o funcionamento do sistema e de acompanhamentos de diversos dados. 
@@ -114,8 +114,8 @@ def conecta_bd():
 O servidor Flask deve iniciar, e você pode acessar o sistema pelo navegador.
 
 Link do video: https://www.youtube.com/watch?v=O192ZmhJttE
-Link do modelo ER: https://drive.google.com/drive/folders/1fauFZmRDyZsjbOsTEouAgN9IvIIrtOzv
-Link do mapeamento ER: https://drive.google.com/drive/folders/1fauFZmRDyZsjbOsTEouAgN9IvIIrtOzv
+Link do modelo ER: https://drive.google.com/drive/folders/1sgv-EAuQXNHleuO4g9619UPYHQAB5oO8?usp=sharing
+Link do mapeamento ER: https://drive.google.com/drive/folders/1sgv-EAuQXNHleuO4g9619UPYHQAB5oO8?usp=sharing
 
 
 8. Para povoar o banco de dados com amostras de dados(exemplos), execute o script SQL:
